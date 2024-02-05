@@ -1,0 +1,212 @@
+# pytorch_lightning==2.1.3
+seed_everything: true
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  logger:
+    class_path: pytorch_lightning.loggers.WandbLogger
+    init_args:
+      name: valid=20231005123336_C3_64x64_z15-47_UNet3dSegformerPLModel_reduced
+      save_dir: .
+      version: null
+      offline: false
+      dir: null
+      id: null
+      anonymous: null
+      project: null
+      log_model: true
+      experiment: null
+      prefix: ''
+      checkpoint_name: null
+      job_type: train
+      config: null
+      entity: null
+      reinit: null
+      tags: null
+      group: null
+      notes: null
+      magic: null
+      config_exclude_keys: null
+      config_include_keys: null
+      mode: null
+      allow_val_change: null
+      resume: null
+      force: null
+      tensorboard: null
+      sync_tensorboard: null
+      monitor_gym: null
+      save_code: null
+      settings: null
+  callbacks:
+  - class_path: pytorch_lightning.callbacks.EarlyStopping
+    init_args:
+      monitor: val/total_loss
+      min_delta: 0.0
+      patience: 5
+      verbose: false
+      mode: min
+      strict: true
+      check_finite: true
+      stopping_threshold: null
+      divergence_threshold: null
+      check_on_train_epoch_end: null
+      log_rank_zero_only: false
+  - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+    init_args:
+      logging_interval: epoch
+      log_momentum: false
+      log_weight_decay: false
+  - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+    init_args:
+      dirpath: null
+      filename: null
+      monitor: val/mean_fbeta_auprc
+      verbose: false
+      save_last: null
+      save_top_k: 1
+      save_weights_only: false
+      mode: max
+      auto_insert_metric_name: true
+      every_n_train_steps: null
+      train_time_interval: null
+      every_n_epochs: null
+      save_on_train_epoch_end: null
+      enable_version_counter: true
+  - class_path: vesuvius_challenge_rnd.fragment_ink_detection.ink_detection.callbacks.WandbSaveConfigCallback
+    init_args:
+      config_filename: config_pl.yaml
+  fast_dev_run: false
+  max_epochs: 15
+  min_epochs: null
+  max_steps: -1
+  min_steps: null
+  max_time: null
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  limit_predict_batches: null
+  overfit_batches: 0.0
+  val_check_interval: null
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: null
+  log_every_n_steps: null
+  enable_checkpointing: null
+  enable_progress_bar: null
+  enable_model_summary: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: norm
+  deterministic: null
+  benchmark: true
+  inference_mode: true
+  use_distributed_sampler: true
+  profiler: null
+  detect_anomaly: false
+  barebones: false
+  plugins: null
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0
+  default_root_dir: null
+ckpt_path: null
+model:
+  class_path: vesuvius_challenge_rnd.scroll_ink_detection.UNet3dSegformerPLModel
+  init_args:
+    smooth_factor: 0.1
+    dice_weight: 0.5
+    lr: 2.0e-05
+    bce_pos_weight: null
+    metric_thresh: 0.5
+    metric_gt_ink_thresh: 0.05
+    unet_feature_size: 16
+    unet_out_channels: 32
+    unet_module_type: resnet_se
+    se_type_str: null
+    depth_pool_fn: max
+    segformer_model_size: 1
+    dropout: 0.1
+    in_channels: 1
+    ckpt_path: null
+    ema: false
+data:
+  class_path: vesuvius_challenge_rnd.scroll_ink_detection.ScrollPatchDataModule
+  init_args:
+    train_segment_ids:
+    - - '1'
+      - '20230702185753'
+    - - '1'
+      - '20230826170124'
+    - - '1'
+      - '20230601204340'
+    - - '1'
+      - '20231210121321'
+    - - '1'
+      - 20231012184422_superseded_C3
+    - - '1'
+      - '20231106155351'
+    - - '1'
+      - '20230904135535'
+    - - '1'
+      - 20231012184422_superseded_C2
+    - - '1'
+      - '20230701020044'
+    - - '1'
+      - '20230905134255'
+    - - '1'
+      - 20231005123336_C4
+    - - '1'
+      - '20231016151002'
+    val_segment_id:
+    - '1'
+    - '20231005123336_C3'
+    ink_label_dir: data/labels
+    data_dir:  data/scrolls
+    z_min: 15
+    z_max: 47
+    size: 64
+    tile_size: 256
+    min_labeled_coverage_frac: 1.0
+    patch_stride_train: 8
+    patch_stride_val: 32
+    downsampling: null
+    batch_size: 32
+    num_workers: 4
+    blur_ink_labels: false
+    ink_labels_blur_kernel_size: 17
+    ink_dilation_kernel_size: 256
+    min_ink_component_size: 1000
+    label_downscale: 1
+    ink_erosion: 0
+    ignore_idx: -100
+    clip_min: 0
+    clip_max: 255
+    patch_train_stride_strict: 8
+    patch_val_stride_strict: 8
+    strict_sampling_only_ink_train: true
+    strict_sampling_only_ink_val: true
+    min_crop_num_offset: 8
+    chunks_load: true
+    use_zarr: false
+    x_chunk_save_size: 512
+    y_chunk_save_size: 512
+    z_chunk_save_size: 32
+    skip_save_zarr_if_exists: true
+    zarr_load_in_memory: true
+    zarr_dir:  data/zarrs
+    model_prediction_dir: null
+    model_based_ink_correction_thresh_train: 0.1
+    model_based_ink_correction_thresh_val: 0.1
+    model_based_non_ink_correction_thresh_train: 0.3
+    model_based_non_ink_correction_thresh_val: 0.3
+    clean_up_ink_labels_train: false
+    clean_up_ink_labels_val: false
+    clean_up_non_ink_labels_train: false
+    clean_up_non_ink_labels_val: false
+    p_0_ink: 0.3
+    p_2_ink: 0.6
+    p_non_ink: 0.1
+    automatic_non_ink_labels: false
+    cache_memmaps: true
+    memmap_dir: data/memmaps

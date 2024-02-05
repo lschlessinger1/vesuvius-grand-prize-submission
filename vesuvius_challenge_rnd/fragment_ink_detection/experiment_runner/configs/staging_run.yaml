@@ -1,0 +1,87 @@
+# pytorch_lightning==2.0.4
+seed_everything: true
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  logger:
+    class_path: pytorch_lightning.loggers.WandbLogger
+    init_args:
+      project: fragment-ink-detection
+      job_type: train_debug
+      log_model: all
+  precision: 16-mixed
+  benchmark: true
+  max_epochs: 50
+  accumulate_grad_batches: 8
+  enable_progress_bar: true
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.RichProgressBar
+    - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val/loss
+        mode: min
+    - class_path: pytorch_lightning.callbacks.EarlyStopping
+      init_args:
+        monitor: val/loss
+        mode: min
+        patience: 5
+    - class_path: vesuvius_challenge_rnd.fragment_ink_detection.ink_detection.callbacks.WandbLogPredictionSamplesCallback
+    - class_path: vesuvius_challenge_rnd.fragment_ink_detection.ink_detection.callbacks.WandbSaveConfigCallback
+    - class_path: vesuvius_challenge_rnd.fragment_ink_detection.ink_detection.callbacks.WandbSavePRandROCCallback
+model:
+  class_path: vesuvius_challenge_rnd.fragment_ink_detection.PatchLitModel
+  init_args:
+    loss_fn:
+      class_path: segmentation_models_pytorch.losses.SoftBCEWithLogitsLoss
+      init_args:
+        weight: null
+        ignore_index: -100
+        reduction: mean
+        smooth_factor: null
+        pos_weight: null
+    f_maps: 16
+    num_levels: 4
+    se_type_str: PE
+    reduction_ratio: 2
+    depth_dropout: 0
+    pool_fn: mean
+data:
+  class_path: vesuvius_challenge_rnd.fragment_ink_detection.PatchDataModule
+  init_args:
+    train_fragment_ind:
+      - 2
+      - 3
+    val_fragment_ind:
+      - 1
+    z_min: 24
+    z_max: 40
+    patch_surface_shape:
+    - 256
+    - 256
+    patch_stride: 128
+    downsampling: 2
+    batch_size: 2
+    num_workers: 0
+    slice_dropout_p: 0.1
+    non_rigid: true
+    non_destructive: true
+optimizer:
+  class_path: torch.optim.AdamW
+  init_args:
+    lr: 0.001
+    betas:
+    - 0.9
+    - 0.999
+    eps: 1.0e-08
+    weight_decay: 0.01
+    amsgrad: false
+    maximize: false
+    foreach: null
+    capturable: false
+    differentiable: false
+    fused: null

@@ -1,0 +1,58 @@
+# pytorch_lightning==2.0.4
+seed_everything: true
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  logger:
+    class_path: pytorch_lightning.loggers.WandbLogger
+    init_args:
+      project: fragment-ink-detection
+      job_type: train_debug
+      log_model: all
+  precision: 16-mixed
+  benchmark: true
+  limit_train_batches: 100
+  limit_val_batches: 100
+  max_epochs: 5
+  accumulate_grad_batches: 8
+  enable_progress_bar: true
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.RichProgressBar
+    - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val/loss
+        mode: min
+    - class_path: pytorch_lightning.callbacks.EarlyStopping
+      init_args:
+        monitor: val/loss
+        mode: min
+    - class_path: vesuvius_challenge_rnd.fragment_ink_detection.ink_detection.callbacks.WandbLogPredictionSamplesCallback
+    - class_path: vesuvius_challenge_rnd.fragment_ink_detection.ink_detection.callbacks.WandbSaveConfigCallback
+    - class_path: vesuvius_challenge_rnd.fragment_ink_detection.ink_detection.callbacks.WandbSavePRandROCCallback
+model:
+  class_path: vesuvius_challenge_rnd.fragment_ink_detection.PatchLitModel
+  init_args:
+    f_maps: 8
+    num_levels: 2
+data:
+  class_path: vesuvius_challenge_rnd.fragment_ink_detection.PatchDataModule
+  init_args:
+    train_fragment_ind:
+      - 2
+      - 3
+    val_fragment_ind:
+      - 1
+    z_min: 27
+    z_max: 37
+    patch_surface_shape:
+    - 64
+    - 64
+    patch_stride: 1024
+    downsampling: 2
+    batch_size: 2
+    num_workers: 0

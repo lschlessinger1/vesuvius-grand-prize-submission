@@ -1,0 +1,175 @@
+[tool.poetry]
+name = "vesuvius-challenge-rnd"
+version = "0.1.0"
+description = "Vesuvius challenge grand prize submission"
+authors = ["Louis Schlessinger <2996982+lschlessinger1@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "vesuvius_challenge_rnd"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+tifffile = "^2023.4.12"
+numpy = "^1.25.0"
+pillow = "^9.5.0"
+matplotlib = "^3.7.1"
+patchify = "^0.2.3"
+rich = "^13.4.2"
+pint = "^0.22"
+wand = "^0.6.11"
+warmup-scheduler = "^0.3"
+
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.3.2"
+black = "^23.3.0"
+isort = {extras = ["colors"], version = "^5.12.0"}
+mypy = "^1.3.0"
+pytest-cov = "^4.1.0"
+pre-commit = "^3.3.3"
+pyupgrade = "^3.7.0"
+
+
+[tool.poetry.group.fragment-ink-det.dependencies]
+torchvision = "^0.15.2"
+pytorch-lightning = {extras = ["extra"], version = "^2.0.4"}
+albumentations = "^1.3.1"
+wandb = "^0.15.4"
+python-dotenv = "^1.0.0"
+jupyter = "^1.0.0"
+seaborn = "^0.12.2"
+segmentation-models-pytorch = "^0.3.3"
+
+
+[tool.poetry.group.torch_cpu.dependencies]
+torch = [
+    {version = "^2.0.1", platform = "win32"},
+    {version = "^2.0.1", platform = "linux", source = "torch_cpu"},
+    {version = "^2.0.1", platform = "darwin"},
+]
+
+[tool.poetry.group.torch_gpu]
+optional = true
+
+[tool.poetry.group.torch_gpu.dependencies]
+torch = [
+    {version = "^2.0.1", platform = "win32", source = "torch_gpu"},
+    {version = "^2.0.1", platform = "linux"},
+    {version = "^2.0.1", platform = "darwin"},
+]
+
+[tool.poetry.group.analysis]
+optional = true
+
+[tool.poetry.group.analysis.dependencies]
+torchinfo = "^1.8.0"
+trimesh = "^3.23.5"
+plotly = "^5.16.1"
+zarr = "^2.16.1"
+
+
+[tool.poetry.group.data-download.dependencies]
+gdown = {version = "^4.7.1", optional = true}
+
+
+[tool.poetry.group.scroll-ink-det.dependencies]
+monai = "^1.3.0"
+einops = "^0.7.0"
+
+[[tool.poetry.source]]
+name = "torch_cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+
+[[tool.poetry.source]]
+name = "torch_gpu"
+url = "https://download.pytorch.org/whl/cu118"
+priority = "explicit"
+
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+# https://github.com/psf/black
+target-version = ["py310"]
+line-length = 100
+color = true
+
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | env
+    | venv
+)/
+'''
+
+[tool.isort]
+# https://github.com/timothycrosley/isort/
+py_version = 310
+line_length = 100
+
+known_typing = ["typing", "types", "typing_extensions", "mypy", "mypy_extensions"]
+sections = ["FUTURE", "TYPING", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+include_trailing_comma = true
+profile = "black"
+multi_line_output = 3
+indent = 4
+color_output = true
+
+[tool.mypy]
+# https://mypy.readthedocs.io/en/latest/config_file.html#using-a-pyproject-toml-file
+python_version = "3.10"
+pretty = true
+show_traceback = true
+color_output = true
+
+allow_redefinition = false
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+ignore_missing_imports = true
+implicit_reexport = false
+no_implicit_optional = true
+show_column_numbers = true
+show_error_codes = true
+show_error_context = true
+strict_equality = true
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/6.2.x/customize.html#pyproject-toml
+# Directories that are not visited by pytest collector:
+norecursedirs =["hooks", "*.egg", ".eggs", "dist", "build", "docs", ".tox", ".git", "__pycache__"]
+doctest_optionflags = ["NUMBER", "NORMALIZE_WHITESPACE", "IGNORE_EXCEPTION_DETAIL"]
+markers = [
+    "fragment_data: marks tests as requiring fragment data (deselect with '-m \"not fragment_data\"')",
+    "scroll_data: marks tests as requiring scroll data (deselect with '-m \"not scroll_data\"')",
+]
+
+# Extra options:
+addopts = [
+    "--strict-markers",
+    "--tb=short",
+    "--doctest-modules",
+    "--doctest-continue-on-failure",
+]

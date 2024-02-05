@@ -1,0 +1,105 @@
+# pytorch_lightning==2.0.6
+seed_everything: true
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  logger:
+    class_path: pytorch_lightning.loggers.WandbLogger
+    init_args:
+      project: scroll-ink-det-debugging
+      job_type: train
+      log_model: all
+      name: valid=20230827161847_64x64_z35-45_i3d
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val/mean_fbeta_auprc
+        mode: max
+        save_top_k: 1
+    - class_path: pytorch_lightning.callbacks.EarlyStopping
+      init_args:
+        monitor: val/total_loss
+        mode: min
+        patience: 5
+  fast_dev_run: true
+  max_epochs: 12
+  min_epochs: null
+  max_steps: -1
+  min_steps: null
+  max_time: null
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  limit_predict_batches: null
+  overfit_batches: 0.0
+  val_check_interval: null
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: null
+  log_every_n_steps: null
+  enable_checkpointing: null
+  enable_progress_bar: null
+  enable_model_summary: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: "norm"
+  deterministic: null
+  benchmark: true
+  inference_mode: true
+  use_distributed_sampler: true
+  profiler: null
+  detect_anomaly: false
+  barebones: false
+  plugins: null
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0
+  default_root_dir: null
+ckpt_path: null
+model:
+  class_path: vesuvius_challenge_rnd.scroll_ink_detection.UNet3dSegformerPLModel
+  init_args:
+    pred_shape: null
+    size: 64
+    lr: 2.0e-05
+    unet_feature_size: 16
+    segformer_model_size: 1
+data:
+  class_path: vesuvius_challenge_rnd.scroll_ink_detection.ScrollPatchDataModule
+  init_args:
+    train_segment_ids:
+    - ["1", "20231210121320_superseded"]
+    val_segment_id: ["1", "20230905134255"]
+    data_dir: D:\data\scrolls
+    z_min: 15
+    z_max: 47
+    size: 64
+    tile_size: 256
+    patch_stride_train: 8
+    patch_stride_val: 32
+    downsampling: null
+    batch_size: 1
+    num_workers: 0
+    blur_ink_labels: false
+    ink_labels_blur_kernel_size: 17
+    ink_erosion: 0
+    patch_train_stride_strict: 8
+    patch_val_stride_strict: 8
+    strict_sampling_only_ink_train: false
+    strict_sampling_only_ink_val: false
+    ink_label_dir: D:\labels\231223
+    min_crop_num_offset: 8
+    chunks_load: true
+    label_downscale: 1
+    automatic_non_ink_labels: false
+    use_zarr: true
+    zarr_dir: E:\data\zarrs
+    x_chunk_save_size: 512
+    y_chunk_save_size: 512
+    z_chunk_save_size: 32
+    skip_save_zarr_if_exists: false
+    zarr_load_in_memory: false

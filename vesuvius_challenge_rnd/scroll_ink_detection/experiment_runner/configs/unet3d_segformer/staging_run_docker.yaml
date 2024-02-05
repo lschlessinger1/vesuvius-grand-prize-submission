@@ -1,0 +1,101 @@
+# pytorch_lightning==2.0.6
+seed_everything: true
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  precision: 16-mixed
+  logger:
+    class_path: pytorch_lightning.loggers.WandbLogger
+    init_args:
+      name: valid=20230601204340_64x64_z15-47_UNet3dSegformerPLModel
+      save_dir: .
+      version: null
+      offline: false
+      dir: null
+      id: null
+      anonymous: null
+      project: null
+      log_model: true
+      experiment: null
+      prefix: ''
+      checkpoint_name: null
+      job_type: train
+      config: null
+      entity: null
+      reinit: null
+      tags: null
+      group: null
+      notes: null
+      magic: null
+      config_exclude_keys: null
+      config_include_keys: null
+      mode: null
+      allow_val_change: null
+      resume: null
+      force: null
+      tensorboard: null
+      sync_tensorboard: null
+      monitor_gym: null
+      save_code: null
+      settings: null
+  callbacks:
+    - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: step
+    - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val/mean_fbeta_auprc
+        mode: max
+        save_top_k: 1
+    - class_path: pytorch_lightning.callbacks.EarlyStopping
+      init_args:
+        monitor: val/total_loss
+        mode: min
+        patience: 5
+  fast_dev_run: false
+  max_epochs: 3
+  limit_train_batches: 100
+  limit_val_batches: 100
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: "norm"
+  deterministic: null
+  benchmark: true
+  inference_mode: true
+  use_distributed_sampler: true
+  profiler: null
+  detect_anomaly: false
+  barebones: false
+  plugins: null
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0
+  default_root_dir: null
+ckpt_path: null
+model:
+  class_path: vesuvius_challenge_rnd.scroll_ink_detection.UNet3dSegformerPLModel
+  init_args:
+    pred_shape: null
+    size: 64
+    lr: 2.0e-05
+    unet_feature_size: 16
+    segformer_model_size: 1
+data:
+  class_path: vesuvius_challenge_rnd.scroll_ink_detection.ScrollPatchDataModule
+  init_args:
+    train_segment_ids:
+    - ["1", "20230530172803"]
+    val_segment_id: ["1", "20230601204340"]
+    z_min: 15
+    z_max: 47
+    size: 64
+    tile_size: 256
+    patch_stride_train: 8
+    patch_stride_val: 32
+    batch_size: 1
+    num_workers: 0
+    patch_train_stride_strict: 8
+    patch_val_stride_strict: 8
+    ink_label_dir: data/labels/dev
+    label_downscale: 1
+    automatic_non_ink_labels: false
